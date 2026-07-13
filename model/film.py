@@ -13,10 +13,13 @@ class Film:
     worlwide_gross_income:str
     languages:str
     production_company:str
+    numGeneri:int
+    ratingMedio:float
+
 
     def __hash__(self):
         return hash(self.id)
     def __eq__(self, other):
         return self.id == other.id
     def __str__(self):
-        return f"{self.id}-{self.title}"
+        return f"{self.title}"

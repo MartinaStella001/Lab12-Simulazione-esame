@@ -1,11 +1,11 @@
-import datetime
 from dataclasses import dataclass
 
-from model.attore import Attore
+from model.film import Film
 
 
 @dataclass
 class Arco:
-    attore1 : Attore
-    attore2 : Attore
-    incasso: str
+    film1: Film
+    film2: Film
+    numGeneriComune: int
+    numAttoriComuni: int
