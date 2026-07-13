@@ -7,77 +7,87 @@ class Controller:
         self._view = view
         # the model, which implements the logic of the program and holds the data
         self._model = model
-        self._choiceAvg1 = None
-        self._choiceAvg2 = None
+        self._choiceGenere = None
+        self._choiceAttore= None
 
-    def fillDDsRating(self):
-        ratings = self._model.getAllRatings()
-        for r in ratings:
-            self._view._ddrating1.options.append(
-                ft.dropdown.Option(data=r, key=r, on_click=self.saveDD1)
+    def fillDDsGenre(self):
+        generi = self._model.getAllGeneri()
+        for g in generi:
+            self._view._ddGenre.options.append(
+                ft.dropdown.Option(data=g, text=g, on_click=self._saveChoiceGenere)
             )
-            self._view._ddrating2.options.append(
-                ft.dropdown.Option(data=r, key=r, on_click=self.saveDD2))
-
         self._view.update_page()
 
-    def saveDD1(self,e):
-        self._choiceAvg1 = e.control.data
-        print(f"Voto 1: {self._choiceAvg1}")
-
-    def saveDD2(self, e):
-        self._choiceAvg2 = e.control.data
-        print(f"Voto 2: {self._choiceAvg2}")
-
+    def _saveChoiceGenere(self,e):
+        self._choiceGenere = e.control.data
+        print(f"genere: {self._choiceGenere}")
 
     def handleCreaGrafo(self, e):
-        if self._choiceAvg1 is None or self._choiceAvg2 is None:
+        if self._choiceGenere is None:
             self._view.txt_result.controls.clear()
             self._view.txt_result.controls.append(
-                ft.Text("Selezionare un valore dal menu", color="red")
+                ft.Text(f"Selezionare un genere dal menu", color="red")
             )
-        self._model.creaGrafo(self._choiceAvg1, self._choiceAvg2)
+            self._view.update_page()
+            return
+        self._model.creaGrafo(self._choiceGenere)
         nodi, archi = self._model.getDettagliGrafo()
         self._view.txt_result.controls.clear()
         self._view.txt_result.controls.append(
-            ft.Text(f"Grafo creato correttamente:", color="green")
+            ft.Text(f"Grafo correttamente creato.",color="green")
         )
         self._view.txt_result.controls.append(
-            ft.Text(f"Numero nodi: {nodi}", color="green")
+            ft.Text(f"Numero di nodi: {nodi}", color="green")
         )
         self._view.txt_result.controls.append(
-            ft.Text(f"Numero archi: {archi}", color="green")
+            ft.Text(f"Numero di archi: {archi}", color="green")
         )
-        best5 = self._model.best5Archi()
-        self._view.txt_result.controls.clear()
+        attoreInfl = self._model.getAttorePiuInfluente()
         self._view.txt_result.controls.append(
-            ft.Text(f"Top 5 archi:", color="green")
+            ft.Text(f"L'attore piu influente è {attoreInfl[0]} con influenza pari a {attoreInfl[1]}.", color="green")
         )
-        for e in best5:
+        self._view.update_page()
+        top10attori = self._model.get10Attori()
+        self._view.txt_result.controls.append(
+            ft.Text(f"Top 10 attori con out-degree maggiore.", color="green")
+        )
+        counter = 1
+        for n in top10attori:
             self._view.txt_result.controls.append(
-                ft.Text(f"{e[0]} -> {e[1]} : {e[2]}")
+                ft.Text(f"{counter}. {n[0]} - degree:{n[1]}")
             )
-        lun, bestComp = self._model.getCompConnesse()
-        self._view.txt_result.controls.append(
-            ft.Text(f"Il grafo ha {lun} componenti connesse", color="green")
-        )
-        self._view.txt_result.controls.append(
-            ft.Text(f"la più grande componente connessa è lunga {len(bestComp)} ", color="green")
-        )
-        for e in bestComp:
-            self._view.txt_result.controls.append(
-                ft.Text(e)
+            counter += 1
+        self._fillDDAttori()
+        self._view.update_page()
+
+    def _fillDDAttori(self):
+        attori = self._model.getAllAttori()
+        for a in attori:
+            self._view._ddAttore.options.append(
+                ft.dropdown.Option(data=a, text=a, on_click=self._saveChoiceAttore)
             )
         self._view.update_page()
 
+    def _saveChoiceAttore(self,e):
+        self._choiceAttore = e.control.data
+        print(f"attore: {self._choiceAttore}")
+
     def handleCammino(self, e):
-        bestPath = self._model.getPath()
+        if self._choiceAttore is None:
+            self._view.txt_result.controls.clear()
+            self._view.txt_result.controls.append(
+                ft.Text(f"Selezionare un attore dal menu", color="red")
+            )
+            self._view.update_page()
+            return
+        #controllo dell'int N
+        bestPath, bestCost = self._model.getPath(self._choiceAttore, 3)
         self._view.txt_result.controls.clear()
         self._view.txt_result.controls.append(
-            ft.Text(f"Trovato miglior cammino di lunghezza {len(bestPath)}.Di seguito i nodi che lo compongono", color="green")
+            ft.Text(f"Best path: {bestCost}", color="green")
         )
         for n in bestPath:
             self._view.txt_result.controls.append(
-            ft.Text(n)
-        )
+                ft.Text(f"{n}")
+            )
         self._view.update_page()

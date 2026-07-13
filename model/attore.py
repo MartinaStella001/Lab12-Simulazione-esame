@@ -8,13 +8,13 @@ class Attore:
     name:str
     height:int
     date_of_birth:datetime
-    known_for_movies: str
-
+    known_for_movies:str
+    numFilmGenere:int
+    ratingMedio:float
 
     def __hash__(self):
         return hash(self.id)
-
-    def __eq__(self, other):
+    def __eq__(self,other):
         return self.id == other.id
     def __str__(self):
-        return f"{self.name} - ({self.id})"
+        return f"{self.name}"
